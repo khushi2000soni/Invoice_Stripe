@@ -19,13 +19,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\View;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Imagick\Driver;
 use Maatwebsite\Excel\Facades\Excel;
 use PDF;
 
@@ -477,5 +473,13 @@ class OrderController extends Controller
                 'alert-type' => trans('quickadmin.alert-type.error')
             ], 500);
         }
+    }
+
+    // Checkout Functionality
+
+    public function showCheckoutDetail($id)
+    {
+        $order = Order::with('customer', 'orderProduct.product')->findOrFail($id); // Eager load related data
+        return view('admin.order.checkout', compact('order'));
     }
 }

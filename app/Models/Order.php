@@ -31,6 +31,7 @@ class Order extends Model
         'deleted_at',
         'updated_at',
         'deleted_at',
+        'is_payment_done',
     ];
 
     protected static function boot()

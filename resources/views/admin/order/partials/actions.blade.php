@@ -67,3 +67,5 @@
 </div>
 @endcan
 
+
+<a href="{{ route('orders.checkout', ['id' => $order->id]) }}" class="btn btn-sm btn-primary">Checkout</a>

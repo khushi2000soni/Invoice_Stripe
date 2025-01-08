@@ -10,12 +10,14 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DataBaseBackupController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportCategoryController;
 use App\Http\Controllers\ReportCustomerController;
 use App\Http\Controllers\ReportProductController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\UserController;
 use App\Livewire\OnlineStatus;
 use App\Models\Customer;
@@ -119,8 +121,17 @@ Route::middleware(['auth','PreventBackHistory'])->group(function () {
     Route::get('/backups/download/{fileName}', [DataBaseBackupController::class, 'downloadBackup'])->name('backups.download');
     Route::post('/backups/upload', [DataBaseBackupController::class, 'uploadBackup'])->name('backups.upload');
 
+    // Stripe Functionalities
+    Route::get('/orders/{id}/checkout', [OrderController::class, 'showCheckoutDetail'])->name('orders.checkout');
+
+    Route::post('/create-session/{id}', [PaymentController::class, 'createCheckoutSession'])->name('payment.create-session');
+    Route::get('/payment-success/{id}', [PaymentController::class, 'paymentSuccess'])->name('payment.success');
+    Route::get('/payment-cancel/{id}', [PaymentController::class, 'paymentCancel'])->name('payment.cancel');
+
 
 });
+
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleStripeWebhook']);
 
 Route::get('/check-connectivity', function() {
     try {

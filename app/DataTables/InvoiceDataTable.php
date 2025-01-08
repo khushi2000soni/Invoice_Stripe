@@ -71,8 +71,8 @@ class InvoiceDataTable extends DataTable
         if(isset(request()->from_date) && request()->from_date && isset(request()->to_date) && request()->to_date){
             $model = $model->whereBetween('invoice_date', [request()->from_date, request()->to_date]);
         }else{
-            $today = Carbon::today();
-            $model = $model->whereDate('invoice_date', $today);
+            // $today = Carbon::today();
+            // $model = $model->whereDate('invoice_date', $today);
         }
 
         if (auth()->user()->hasRole([config('app.roleid.admin'), config('app.roleid.accountant')])) {

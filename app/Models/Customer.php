@@ -30,6 +30,7 @@ class Customer extends Model
         'deleted_at',
         'is_active',
         'is_verified',
+        'stripe_customer_id',
     ];
 
     protected $appends = [
