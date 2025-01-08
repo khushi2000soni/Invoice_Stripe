@@ -1,66 +1,159 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+Here's a detailed and structured **README** file for your Laravel project with Stripe integration, including webhook handling and payment processing:
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+---
 
-## About Laravel
+# **Laravel Stripe Integration with Webhooks**
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+This project implements Stripe payment processing in a Laravel application, including webhook handling for different payment events. The system supports creating Stripe customers, handling payments, and responding to various webhook events such as successful or failed payments.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## **Features**
 
-## Learning Laravel
+- Create Stripe customers and store their Stripe customer IDs in the database.
+- Handle payment intents and process transactions upon successful payments.
+- Manage webhook events for:
+  - `payment_intent.succeeded`
+  - `payment_intent.payment_failed`
+  - `invoice.payment_succeeded`
+  - `invoice.payment_failed`
+  - `checkout.session.completed`
+- Store transaction details in the database.
+- Handle payment failures gracefully.
+- Use Laravel’s logging system for debugging and error reporting.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## **Tech Stack**
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **Backend Framework**: Laravel 10
+- **Payment Gateway**: Stripe
+- **Database**: MySQL
+- **Webhooks**: Stripe webhook events
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+## **Installation**
 
-### Premium Partners
+1. **Clone the Repository**
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+   ```bash
+   git clone https://github.com/your-username/your-repo-name.git
+   cd your-repo-name
+   ```
 
-## Contributing
+2. **Install Dependencies**
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+   ```bash
+   composer install
+   ```
 
-## Code of Conduct
+3. **Set Up Environment Variables**
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+   Create a `.env` file in the root directory and set the following environment variables:
 
-## Security Vulnerabilities
+   ```env
+   STRIPE_SECRET_KEY=your-stripe-secret-key
+   STRIPE_WEBHOOK_SECRET_KEY=your-stripe-webhook-signing-secret
+   APP_URL=http://localhost:8000
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+4. **Run Migrations**
 
-## License
+   ```bash
+   php artisan migrate
+   ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+5. **Run the Application**
+
+   ```bash
+   php artisan serve
+   ```
+
+---
+
+## **Stripe Webhook Setup**
+
+To handle Stripe webhooks:
+
+1. Set up a webhook endpoint in the Stripe dashboard pointing to:  
+   `http://your-domain.com/stripe/webhook`
+
+2. Add your webhook signing secret to the `.env` file:
+
+   ```env
+   STRIPE_WEBHOOK_SECRET_KEY=your-webhook-signing-secret
+   ```
+
+3. Use the following Stripe CLI command to test webhooks locally:
+
+   ```bash
+   stripe listen --forward-to http://localhost:8000/stripe/webhook
+   ```
+
+---
+
+## **Database Schema**
+
+### **Transactions Table**
+
+The `transactions` table stores the payment details:
+
+| Column             | Type       | Description                                   |
+|--------------------|------------|-----------------------------------------------|
+| `id`               | `bigint`   | Primary key                                   |
+| `order_id`         | `foreign`  | References the `orders` table                 |
+| `customer_id`      | `foreign`  | References the `customers` table              |
+| `order_json`       | `json`     | Stores the order data                        |
+| `payment_intent_id`| `string`   | Unique Stripe payment intent ID              |
+| `amount`           | `double`   | Payment amount                               |
+| `currency`         | `string`   | Currency code (e.g., USD, INR)               |
+| `payment_method`   | `string`   | Payment method used (e.g., card, bank)       |
+| `payment_type`     | `enum`     | Type of payment (`debit`, `credit`)          |
+| `payment_json`     | `json`     | Stores the complete payment data             |
+| `status`           | `string`   | Payment status (`1` for success, `2` for fail)|
+| `receipt_url`      | `string`   | Stripe receipt URL                           |
+| `description`      | `text`     | Description of the transaction               |
+| `created_at`       | `timestamp`| Timestamp when the record was created        |
+| `updated_at`       | `timestamp`| Timestamp when the record was last updated   |
+| `deleted_at`       | `timestamp`| Soft delete column                           |
+
+---
+
+## **Webhook Event Handling**
+
+The following Stripe webhook events are handled in `StripeWebhookController`:
+
+| Event Type                    | Handler Method                    | Description                                   |
+|-------------------------------|-----------------------------------|---------------------------------------------|
+| `payment_intent.succeeded`    | `handlePaymentIntentSucceeded()`  | Handles successful payment intent events     |
+| `payment_intent.payment_failed`| `handlePaymentIntentFailed()`     | Handles failed payment intents               |
+| `invoice.payment_succeeded`   | `handleInvoicePaymentSucceeded()` | Handles successful invoice payments          |
+| `invoice.payment_failed`      | `handleInvoicePaymentFailed()`    | Handles failed invoice payments              |
+| `checkout.session.completed`  | `handleCheckoutSessionCompleted()`| Handles successful checkout sessions         |
+
+---
+
+## **Example Webhook Handler**
+
+Here’s an example of how `handlePaymentIntentSucceeded` works:
+
+---
+
+## **Error Handling**
+
+- CSRF token errors (`419`) are prevented by excluding the webhook route from CSRF protection in `VerifyCsrfToken` middleware.
+- Stripe signature verification errors are logged, and appropriate error responses are returned to Stripe.
+
+---
+
+## **Logging**
+
+All significant events and errors are logged using Laravel’s logging system. You can check the logs in the `storage/logs/laravel.log` file.
+
+---
+
+## **Testing**
+
+You can test the webhook events using the Stripe CLI or manually trigger events from the Stripe dashboard. Ensure that the correct webhook secret is used for verification.
+
